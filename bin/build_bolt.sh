@@ -34,6 +34,22 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 
   $GO build -o pkg/protonail.com/bolt-jna/$BOLT_FILE -buildmode=c-shared protonail.com/bolt-jna
 elif [[ "$OSTYPE" == "linux"* ]]; then
+  export GO111MODULE=off
+
+#  echo Build Mac
+#  BOLT_FILE=libbolt.dylib
+#  BOLT_ARCH=darwin
+#  OUTPUT_LEVELDB_FILE=
+
+#  CGO_ENABLED=1 GOOS=darwin GOARCH=amd64 $GO build -buildmode=c-shared -o pkg/protonail.com/bolt-jna/$BOLT_FILE protonail.com/bolt-jna
+#  echo --------------------
+#  echo Copy Mac Bolt library
+#  echo --------------------
+
+#  mkdir -p $ROOT_HOME/bolt-jna-native/src/main/resources/$BOLT_ARCH/
+#  cp $GOPATH/pkg/protonail.com/bolt-jna/$BOLT_FILE $ROOT_HOME/bolt-jna-native/src/main/resources/$BOLT_ARCH/$BOLT_FILE
+
+  echo Build Linux
   BOLT_FILE=libbolt.so
   if [[ $(uname -m) == "x86_64" ]]; then
     BOLT_ARCH=linux-x86-64
@@ -41,8 +57,30 @@ elif [[ "$OSTYPE" == "linux"* ]]; then
     BOLT_ARCH=linux-x86
   fi
   OUTPUT_LEVELDB_FILE=
+	GOOS=linux GOARCH=amd64 go build -buildmode=c-shared -o pkg/protonail.com/bolt-jna/$BOLT_FILE -buildmode=c-shared protonail.com/bolt-jna
 
-  $GO build -o pkg/protonail.com/bolt-jna/$BOLT_FILE -buildmode=c-shared protonail.com/bolt-jna
+  echo --------------------
+  echo Copy Linux Bolt library
+  echo --------------------
+
+  mkdir -p $ROOT_HOME/bolt-jna-native/src/main/resources/$BOLT_ARCH/
+  cp $GOPATH/pkg/protonail.com/bolt-jna/$BOLT_FILE $ROOT_HOME/bolt-jna-native/src/main/resources/$BOLT_ARCH/$BOLT_FILE
+
+  echo Build Windows
+  BOLT_FILE=bolt.dll
+  BOLT_ARCH=win32-x86-64
+  OUTPUT_LEVELDB_FILE=
+  CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc $GO build -a -ldflags '-w' -o pkg/protonail.com/bolt-jna/$BOLT_FILE -buildmode=c-shared protonail.com/bolt-jna
+
+  echo --------------------
+  echo Copy Windows Bolt library
+  echo --------------------
+
+  mkdir -p $ROOT_HOME/bolt-jna-native/src/main/resources/$BOLT_ARCH/
+  cp $GOPATH/pkg/protonail.com/bolt-jna/$BOLT_FILE $ROOT_HOME/bolt-jna-native/src/main/resources/$BOLT_ARCH/$BOLT_FILE
+
+  exit 0
+
 elif [[ "$OSTYPE" == "msys" ]]; then
   BOLT_FILE=bolt.dll
   if [[ "$MSYSTEM" == "MINGW64" ]]; then
