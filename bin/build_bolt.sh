@@ -17,7 +17,7 @@ if [[ "$1" == "clean" ]]; then
   echo Clean
   echo --------------------
 
-  rm -rf $GOPATH/pkg
+  rm -rf pkg
 fi
 
 echo --------------------
